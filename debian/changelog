@@ -1,0 +1,5 @@
+libtemplate-plugin-json-perl (0.03-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 7 Nov 2008 13:59:42 +0100
