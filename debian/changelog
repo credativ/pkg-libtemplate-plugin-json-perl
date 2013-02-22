@@ -1,3 +1,9 @@
+libtemplate-plugin-json-perl (0.06-4) unstable; urgency=low
+
+  * [448f7aa] Ok then moose too...
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 22 Feb 2013 14:13:14 +0100
+
 libtemplate-plugin-json-perl (0.06-3) unstable; urgency=low
 
   * [dbb2abd] Update build-deps again
