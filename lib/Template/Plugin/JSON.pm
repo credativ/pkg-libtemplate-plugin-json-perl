@@ -1,98 +1,79 @@
 #!/usr/bin/perl
 
 package Template::Plugin::JSON;
-use base qw/Template::Plugin::VMethods/;
+use Moose;
+
+use JSON ();
 
 use Carp qw/croak/;
 
-our $VERSION = "0.03";
+extends qw(Moose::Object Template::Plugin);
 
-our @SCALAR_OPS = our @LIST_OPS = our @HASH_OPS = ("json");
+our $VERSION = "0.06";
 
-sub new {
-    my ( $self, $c, $driver ) = @_;
-    $self->_load_driver($driver);
-    $self->SUPER::new($c);
-}
 
-sub _load_driver {
-    my ( $self, $driver ) = @_;
+has context => (
+	isa => "Object",
+	is  => "ro",
+);
 
-    if ( $driver ) {
-        $self->_load_specific_driver($driver);
-    } else {
-        $self->_load_any_driver;
-    }
-}
+has json_converter => (
+	isa => "Object",
+	is  => "ro",
+	lazy_build => 1,
+);
 
-sub _load_specific_driver {
-    my ( $self, $driver ) = @_;
+has json_args => (
+	isa => "HashRef",
+	is  => "ro",
+	default => sub { {} },
+);
 
-	local $@;
+sub BUILDARGS {
+    my ( $class, $c, @args ) = @_;
 
-   	foreach my $module ( "JSON::$driver", $driver ) {
-		my $method = lc("_load_${module}_driver");
-		$method =~ s/\W+/_/g;
+	my $args;
 
-		$self->can($method) || next;
-
-		my $module_file = "${module}.pm";
-		$module_file =~ s{::}{/}g;
-
-		eval { require $module_file };
-		return $self->$method;
+	if ( @args == 1 and not ref $args[0] ) {
+		warn "Single argument form is deprecated, this module always uses JSON/JSON::XS now";
 	}
 
-	croak "Unknown JSON driver: $driver";
+	$args = ref $args[0] ? $args[0] : {};
+
+	return { %$args, context => $c, json_args => $args };
 }
 
-sub _load_any_driver {
-    my $self = shift;
+sub _build_json_converter {
+	my $self = shift;
 
-	return if defined &json;
+	my $json = JSON->new->allow_nonref(1);
 
-	local $@;
-    if ( eval { require JSON::XS; 1 } ) {
-        $self->_load_json_xs_driver;
-	} elsif ( eval { require JSON::Any; 1 } ) {
-		$self->_load_json_any_driver;
-	} elsif ( eval { require JSON::Syck; 1 } ) {
-		$self->_load_json_syck_driver;
-	} elsif ( eval { require JSON::Converter; 1 } ) {
-		$self->_load_json_converter_driver;
-	} else {
-		croak "Couldn't find a JSON driver, please install JSON::Any or JSON::XS";
+	my $args = $self->json_args;
+
+	for my $method (keys %$args) {
+		if ( $json->can($method) ) {
+			$json->$method( $args->{$method} );
+		}
 	}
+
+	return $json;
 }
 
-sub _load_json_xs_driver {
-    my $self = shift;
-	my $j = JSON::XS->new->utf8->allow_nonref;
-    *json = sub { $j->encode(shift) }
+sub json {
+	my ( $self, $value ) = @_;
+
+	$self->json_converter->encode($value);
 }
 
-sub _load_json_syck_driver {
-    my $self = shift;
-    *json = \&JSON::Syck::Dump;
+sub json_decode {
+	my ( $self, $value ) = @_;
+
+	$self->json_converter->decode($value);
 }
 
-sub _load_json_converter_driver {
-    my $self = shift;
-
-    my $conv   = JSON::Converter->new;
-    *json = sub {
-        my $data = shift;
-        ref $data ? $conv->objToJson($data) : $conv->valueToJson($data);
-    };
-}
-
-sub _load_json_any_driver {
-    my $self = shift;
-    JSON::Any->import();
-    my $conv = JSON::Any->new(allow_nonref => 1);
-    *json = sub {  
-        $conv->encode($_[0]); 
-    };
+sub BUILD {
+	my $self = shift;
+	$self->context->define_vmethod( $_ => json => sub { $self->json(@_) } ) for qw(hash list scalar);
 }
 
 __PACKAGE__;
@@ -107,7 +88,7 @@ Template::Plugin::JSON - Adds a .json vmethod for all TT values.
 
 =head1 SYNOPSIS
 
-	[% USE JSON %];
+	[% USE JSON ( pretty => 1 ) %];
 
 	<script type="text/javascript">
 
@@ -115,27 +96,29 @@ Template::Plugin::JSON - Adds a .json vmethod for all TT values.
 
 	</script>
 
+	or read in JSON
+
+	[% USE JSON %]
+	[% data = JSON.json_decode(json) %]
+	[% data.thing %]
+
 =head1 DESCRIPTION
 
-This plugin provides a C<.json> vmethod to all value types when loaded.
+This plugin provides a C<.json> vmethod to all value types when loaded. You
+can also decode a json string back to a data structure.
 
-With no argument it will try to load L<JSON::Syck> and then L<JSON::Converter>.
-If used as C<[% USE JSON("Syck") %]> or C<[% USE JSON("Converter") %]> it will
-load that specific plugin.
+It will load the L<JSON> module (you probably want L<JSON::XS> installed for
+automatic speed ups).
 
-If no plugin could be loaded an exception is thrown. Check for errors from
-L<Template/process>.
+Any options on the USE line are passed through to the JSON object, much like L<JSON/to_json>.
 
 =head1 SEE ALSO
 
-L<JSON::Syck>, L<JSON::Converter>, L<Template::Plugin::VMethods>
-
+L<JSON>, L<Template::Plugin>
 
 =head1 VERSION CONTROL
 
-This module is maintained using Darcs. You can get the latest version from
-L<http://nothingmuch.woobling.org/Template-Plugin-JSON/>, and use C<darcs send>
-to commit changes.
+L<http://github.com/nothingmuch/template-plugin-json/>
 
 =head1 AUTHOR
 
@@ -143,7 +126,7 @@ Yuval Kogman <nothingmuch@woobling.org>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright (c) 2006 Infinity Interactive, Yuval Kogman.
+Copyright (c) 2006, 2008 Infinity Interactive, Yuval Kogman.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
