@@ -1,3 +1,9 @@
+libtemplate-plugin-json-perl (0.06-3) unstable; urgency=low
+
+  * [dbb2abd] Update build-deps again
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 22 Feb 2013 14:08:34 +0100
+
 libtemplate-plugin-json-perl (0.06-2) unstable; urgency=low
 
   * [1d77f90] Update build deps
