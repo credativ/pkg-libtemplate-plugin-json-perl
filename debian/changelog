@@ -1,3 +1,12 @@
+libtemplate-plugin-json-perl (0.06-1) unstable; urgency=low
+
+  * [2ed4bda] Imported Upstream version 0.06
+  * [d2a4d61] Update copyright file
+  * [656e1ac] Bump standards version
+  * [6f1bef0] Port to dh
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 22 Feb 2013 13:57:34 +0100
+
 libtemplate-plugin-json-perl (0.03-1) unstable; urgency=low
 
   * Initial Release.
