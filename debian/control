@@ -1,8 +1,8 @@
 Source: libtemplate-plugin-json-perl
 Section: perl
 Priority: optional
-Build-Depends: debhelper (>= 5)
-Build-Depends-Indep: perl (>= 5.6.10-12), libtemplate-plugin-vmethods-perl
+Build-Depends: debhelper (>= 9)
+Build-Depends-Indep: perl (>= 5.6.10-12), libtemplate-plugin-vmethods-perl, libtest-use-ok-perl
 Maintainer: Alexander Wirt <formorer@debian.org>
 Standards-Version: 3.9.3
 Homepage: http://search.cpan.org/dist/Template-Plugin-JSON/
