@@ -4,7 +4,7 @@ Priority: optional
 Build-Depends: debhelper (>= 5)
 Build-Depends-Indep: perl (>= 5.6.10-12), libtemplate-plugin-vmethods-perl
 Maintainer: Alexander Wirt <formorer@debian.org>
-Standards-Version: 3.8.0
+Standards-Version: 3.9.3
 Homepage: http://search.cpan.org/dist/Template-Plugin-JSON/
 
 Package: libtemplate-plugin-json-perl
