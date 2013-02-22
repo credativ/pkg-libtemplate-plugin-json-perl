@@ -2,14 +2,14 @@ Source: libtemplate-plugin-json-perl
 Section: perl
 Priority: optional
 Build-Depends: debhelper (>= 9)
-Build-Depends-Indep: perl (>= 5.6.10-12), libtemplate-plugin-vmethods-perl, libtest-use-ok-perl, libjson-xs-perl | libyaml-syck-perl
+Build-Depends-Indep: perl (>= 5.6.10-12), libtemplate-plugin-vmethods-perl, libtest-use-ok-perl, libjson-xs-perl | libyaml-syck-perl, libjson-perl
 Maintainer: Alexander Wirt <formorer@debian.org>
 Standards-Version: 3.9.3
 Homepage: http://search.cpan.org/dist/Template-Plugin-JSON/
 
 Package: libtemplate-plugin-json-perl
 Architecture: all
-Depends: ${perl:Depends}, ${misc:Depends}, libtemplate-perl, libjson-xs-perl | libyaml-syck-perl, libtemplate-plugin-vmethods-perl
+Depends: ${perl:Depends}, ${misc:Depends}, libtemplate-perl, libjson-xs-perl | libyaml-syck-perl, libtemplate-plugin-vmethods-perl, libjson-perl
 Description:  Adds a .json vmethod for all Template Toolkit values
  This plugin provides a .json vmethod to all value types when loaded.
  .
